@@ -58,15 +58,18 @@ class HttpHandler extends ReportHandler {
         enableStackTrace: enableStackTrace,
         enableCustomParameters: enableCustomParameters,
       );
-      final HashMap<String, dynamic> mutableHeaders =
-          HashMap<String, dynamic>();
+      final HashMap<String, dynamic> mutableHeaders = HashMap<String, dynamic>();
       if (headers.isNotEmpty == true) {
         mutableHeaders.addAll(headers);
       }
 
       final Options options = Options(
-        sendTimeout: requestTimeout,
-        receiveTimeout: responseTimeout,
+        sendTimeout: Duration(
+          milliseconds: requestTimeout,
+        ),
+        receiveTimeout: Duration(
+          milliseconds: responseTimeout,
+        ),
         headers: mutableHeaders,
       );
 
@@ -74,10 +77,8 @@ class HttpHandler extends ReportHandler {
       _printLog("Calling: ${endpointUri.toString()}");
       if (report.screenshot != null) {
         final screenshotPath = report.screenshot?.path ?? "";
-        final FormData formData = FormData.fromMap(<String, dynamic>{
-          "payload_json": json,
-          "file": await MultipartFile.fromFile(screenshotPath)
-        });
+        final FormData formData = FormData.fromMap(
+            <String, dynamic>{"payload_json": json, "file": await MultipartFile.fromFile(screenshotPath)});
         response = await _dio.post<dynamic>(
           endpointUri.toString(),
           data: formData,
